@@ -98,6 +98,18 @@
   \stepcounter{figure}
 }
 
+\setcounter{table}{1}
+\newcommand{\mytablecaption}[1]{
+  \vspace{0.5cm}
+  \begin{center}
+    \begin{quote}
+        {#1}
+    \end{quote}    
+  \end{center}
+  \vspace{1cm}
+  \stepcounter{table}
+}
+
 \newcommand{\cwicaption}[1]{
   %\vspace{0.5cm}
   \begin{quote}
@@ -237,7 +249,7 @@
     % Title text
     \node[inner sep=0,text width=0.8\textwidth,text centered,font=\Huge] (Title) at (-0.3,0) 
     {
-        {\sffamily\veryHuge \textbf{Causal Dynamic Time Lag \\ Applications to Space Weather}}\\
+        {\sffamily\veryHuge \textbf{Causal Dynamic Time Lag : What? and When?}}\\
         {\sffamily\Huge \underline{Mandar Chandorkar}$^{1,2}$, Cyril Furthlener$^2$, Enrico Camporeale$^1$, Michele Sebag$^2$}\\
         \vspace{-0.2\baselineskip}
         {\sffamily\LARGE 1 Multiscale Dynamics, CWI, Amsterdam, 2 TAU, INRIA Paris-Saclay}\\
@@ -291,7 +303,7 @@
 
 \mysection{Sun-Earth System}
 
-\myfig{magnetosphere}{1.0}
+\myfig{magnetosphere}{0.75}
 
 The Sun ejects charged energetic particles, known as the \emph{solar wind}, into the surrounding space. Depending on the nature of activity on the Sun, its effects are observed near the Earth after some time delay, which is variable and uncertain.
 
@@ -304,34 +316,29 @@ Learning the the time delay between causes and effects, from data, is an importa
 
 \begin{enumerate}
 \item \textbf{Inputs}: Two time series, the causes $x(t)$ and the observed effects $y(t)$
-\item \textbf{Outputs}: A function $f()$ which maps each input pattern $x(t_1)$ to an output $y(t_2)$, and $g(.)$ which maps the time delay between the input and output patterns $t_2 = t_1 + g(x(t_1))$.
+\item \textbf{Outputs}: A function $f: \mathcal{X}  \rightarrow \mathbb{R}$ which maps each input pattern $x(t_1)$ to an output $y(t_2)$, and $g:\mathcal{X}  \rightarrow \mathbb{R}^{+}$ which maps the time delay between the input and output patterns $t_2 = t_1 + g(x(t_1))$.
 \end{enumerate}
 
 \begin{align}
 y(t + \Delta(t)) & = f[x(t)]\label{eq:pb1}\\
 \Delta(t) & = g[x(t)]\label{eq:pb2} 
 \end{align}
-with
-\[
-f: \mathcal{X}  \rightarrow \mathbb{R} \qquad\text{and}\qquad
-g: \mathcal{X}  \rightarrow \mathbb{R}^{+},
-\]
-
-
 
 \mysection{Proposed Solution}
 
 
 Define for every time step $t$, a \emph{causal time window} $[t+\ell, t+\ell+h)$, within which the model searches for probable temporal causal links.
 
-Our proposed model produces for a given input $x(t)$ at time $t$ the following predictions:
+The model must produce for a given input $x(t)$ at time $t$ the following predictions:
 
 \begin{enumerate}
 \item Targets $\hat{y}(t+\ell), \cdots, \hat{y}(t+\ell+h-1)$
 \item Time Lag Probabilities $\hat{p}(t+\ell), \cdots, \hat{p}(t+\ell+h-1)$
 \end{enumerate}
 
-\myfig{network}{0.75}
+\myfig{network}{0.6}
+
+The proposed model architecture takes the form of a neural network model as seen above.
 
 In order to train time lag based models, one must balance two incentives.
 
@@ -343,27 +350,79 @@ In order to train time lag based models, one must balance two incentives.
 
 \begin{equation}\label{eq:loss}
 \begin{aligned}
-\mathcal{L}(y^{(1:M)}, \hat{y}^{(1:M)}, \hat{p}^{(1:M)}) = & \lambda_1 \sum_{i,m}{\frac{1}{2M} (y^{(m)}_{i} - \hat{y}^{(m)}_{i})^2 (1 + \hat{p}^{(m)}_i)} \\ 
-+ &\lambda_2 \mathcal{J}(y^{(1:M)}, \hat{y}^{(1:M)}, \hat{p}^{(1:M)}).
+\mathcal{L}(y^{(1:M)}, \hat{y}^{(1:M)}, \hat{p}^{(1:M)}) = & \lambda_1 \frac{1}{2M} \sum_{i,m}{(y^{(m)}_{i} - \hat{y}^{(m)}_{i})^2 (1 + \hat{p}^{(m)}_i)} \\ 
++ &\lambda_2 \frac{1}{M} \sum_{i,m}{\hat{p}^{m}_{i} log \left( \frac{\hat{p}^{m}_{i}}{\widetilde{p}_{i}}\right )}
 \end{aligned}
 \end{equation}
 
 
 \mysection{Experiments}
 
+Generating time series $x(t) \in \mathbb{R}^8$, of size $4000$ (one copy for training and another for test), using \emph{Stochastic Langevin Dynamics} as shown in equation \ref{eq:data}.
+
+\begin{align}
+ x(t+1) &= (1 - \tau) x(t) + \mathcal{N}(0, \sigma^2) \label{eq:data}\\
+ y(t+\Delta(t)) &= \alpha ||x(t)||^2 \label{eq:outputs}
+\end{align}
+
+\begin{enumerate}
+\item \textbf{Problem I} Constant Velocity $\alpha ||x(t)||^2 + c$; Fixed Distance $d$: 
+\newline $\Delta(t) = d/(\alpha ||x(t)||^2 + c),\ \alpha = \frac{100}{8},\ d = 1000,\ c = 40$
+
+\item \textbf{Problem II} Constant Acceleration $a$; Fixed Distance $d$: 
+\newline $\Delta(t) = (\sqrt{\alpha^2||x(t)||^4 + 2ad} - \alpha||x(t)||^2)/a,\ \alpha = \frac{50}{8},\ a = 5,\ d = 1000$
+
+\end{enumerate}
 
 \myfig{exp2_predictive_curves}{0.5}
+
+\begin{center}
+\begin{tabular}{p{0.25\linewidth}p{0.25\linewidth}p{0.25\linewidth}}
+\hline
+\noalign{\smallskip}
+\multicolumn{3}{c}{Predictive Performance: Time Lag} \\
+\hline
+Experiment  &  M.A.E  &  Correlation \\
+\noalign{\smallskip}
+\hline
+\noalign{\smallskip}
+I & $0.763$ & $0.899$ \\
+II & $1.492$ & $0.934$ \\
+\noalign{\smallskip}
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{p{0.25\linewidth}p{0.25\linewidth}p{0.25\linewidth}}
+\hline
+\noalign{\smallskip}
+\multicolumn{3}{c}{Predictive Performance: Output} \\
+\hline
+Experiment  &  M.A.E  &  Correlation \\
+\noalign{\smallskip}
+\hline
+\noalign{\smallskip}
+I & $20.186$ & $0.983$ \\
+II & $16.204$ & $0.980$ \\
+\noalign{\smallskip}
+\hline
+\end{tabular}
+\end{center}
+
+
+
 
 
 \myfig{exp3_predictive_curves}{0.5}
 
+
 %\vspace{\baselineskip}
 \mysection{Conclusions}
 \begin{enumerate}
+    \item Our proposed method 
     \item 
-    \item 
-    \item 
-    %\item Manuscript (under review) available on \underline{www.mlspaceweather.org}\\
+    \item Manuscript (under review) AISTATS 2019\\
 \end{enumerate}
     %\vspace{.5\baselineskip}
     %Ref: Chandorkar, Camporeale, Wing \emph{Gaussian Processes Autoregressive Models for Forecasting the Disturbance Storm Time Index}
