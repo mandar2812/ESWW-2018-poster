@@ -93,9 +93,9 @@
 \setcounter{figure}{1}
 \newcommand{\mycaption}[1]{
   \vspace{0.5cm}
-  \begin{quote}
+  \begin{center}
     {#1}
-  \end{quote}
+  \end{center}
   \vspace{0.5cm}
   \stepcounter{figure}
 }
@@ -376,7 +376,7 @@ The quantity $\widetilde{p}_i, i \in {1, \cdots, h}$ represents some \emph{aprio
 
 \mysection{Experiments}
 
-Generate synthetic time series $x(t) \in \mathbb{R}^8$, of size $4000$ (one copy for training and another for test), using \emph{Stochastic Langevin Dynamics} as shown in equation \ref{eq:data}.
+\textbf{Data Generation}: Time series $x(t) \in \mathbb{R}^8$, of size $4000$ (one copy for training and another for test), using \emph{Stochastic Langevin Dynamics} as shown in equation \ref{eq:data}.
 
 \begin{align}
  x(t+1) &= (1 - \tau) x(t) + \mathcal{N}(0, \sigma^2) \label{eq:data}\\
@@ -392,10 +392,14 @@ Generate synthetic time series $x(t) \in \mathbb{R}^8$, of size $4000$ (one copy
 
 \end{enumerate}
 
+
 \myfig{exp2_predictive_curves}{0.5}
+
 \mycaption{\textbf{Problem I}: Output vs Propagation time relationship}
 
+
 \myfig{exp3_predictive_curves}{0.5}
+
 \mycaption{\textbf{Problem II}: Output vs Propagation time relationship}
 
 \begin{center}
