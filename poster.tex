@@ -332,7 +332,7 @@ y(t + \Delta(t)) & = f[x(t)]\label{eq:pb1}\\
 Define for every time step $t$, a \emph{causal time window} $[t+\ell, t+\ell+h)$. 
 \vspace{0.4\baselineskip}
 
-\textbf{Inputs}: Time series $x(t) \in \mathbb{R}^{d}$ \vspace{0.5\baselineskip}
+\textbf{Inputs}: Time series $x(t) \in \mathbb{R}^{n}$ \vspace{0.5\baselineskip}
 
 \textbf{Model Outputs}: 
 \begin{enumerate}
@@ -376,7 +376,7 @@ The quantity $\widetilde{p}_i, i \in {1, \cdots, h}$ represents some \emph{aprio
 
 \mysection{Experiments}
 
-Generating time series $x(t) \in \mathbb{R}^8$, of size $4000$ (one copy for training and another for test), using \emph{Stochastic Langevin Dynamics} as shown in equation \ref{eq:data}.
+Generate synthetic time series $x(t) \in \mathbb{R}^8$, of size $4000$ (one copy for training and another for test), using \emph{Stochastic Langevin Dynamics} as shown in equation \ref{eq:data}.
 
 \begin{align}
  x(t+1) &= (1 - \tau) x(t) + \mathcal{N}(0, \sigma^2) \label{eq:data}\\
