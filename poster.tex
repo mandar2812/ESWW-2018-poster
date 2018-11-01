@@ -36,6 +36,8 @@
 \usepackage[pdftex]{graphicx}
 \usepackage{rotating}
 \usepackage{amsmath, amsthm, amssymb, bm}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
 \usepackage{array}
 \usepackage{nth}
 \usepackage[square,numbers]{natbib}
@@ -94,7 +96,7 @@
   \begin{quote}
     {#1}
   \end{quote}
-  \vspace{1cm}
+  \vspace{0.5cm}
   \stepcounter{figure}
 }
 
@@ -307,6 +309,7 @@
 
 The Sun ejects charged energetic particles, known as the \emph{solar wind}, into the surrounding space. Depending on the nature of activity on the Sun, its effects are observed near the Earth after some time delay, which is variable and uncertain.
 
+\vspace{0.5\baselineskip}
 \mysection{Causal Time Lag \& Propagation Time}
 \myfig{GrangerCausalityIllustration}{0.75}
 
@@ -326,26 +329,35 @@ y(t + \Delta(t)) & = f[x(t)]\label{eq:pb1}\\
 
 \mysection{Proposed Solution}
 
+Define for every time step $t$, a \emph{causal time window} $[t+\ell, t+\ell+h)$. 
+\vspace{0.4\baselineskip}
 
-Define for every time step $t$, a \emph{causal time window} $[t+\ell, t+\ell+h)$, within which the model searches for probable temporal causal links.
+\textbf{Inputs}: Time series $x(t) \in \mathbb{R}^{d}$ \vspace{0.5\baselineskip}
 
-The model must produce for a given input $x(t)$ at time $t$ the following predictions:
-
+\textbf{Model Outputs}: 
 \begin{enumerate}
-\item Targets $\hat{y}(t+\ell), \cdots, \hat{y}(t+\ell+h-1)$
-\item Time Lag Probabilities $\hat{p}(t+\ell), \cdots, \hat{p}(t+\ell+h-1)$
+\item Targets $[\hat{y}(t+\ell), \cdots, \hat{y}(t+\ell+h-1)]$
+\item Time Lag Probabilities $[\hat{p}(t+\ell), \cdots, \hat{p}(t+\ell+h-1)], \ \sum^{h-1}_{i = 0}{\hat{p}_{i}} = 1$
 \end{enumerate}
 
-\myfig{network}{0.6}
+\vspace{0.4\baselineskip}
 
-The proposed model architecture takes the form of a neural network model as seen above.
+\textbf{Predictions}: For an input $x(t)$, predict the target $\hat{y}(t + \ell + i^{*})$ corresponding to the most probable propagation time $i^{*} = \argmin_{i}{\hat{p}_i(x(t))}$
 
-In order to train time lag based models, one must balance two incentives.
+\vspace{0.4\baselineskip}
+
+\textbf{Architecture}: The proposed model architecture takes the form of a neural network model as seen below.
+\myfig{network}{0.75}
+
+\textbf{Model Training}: In order to build time lag based models, we must devise an objective/loss function which favours.
 
 \begin{enumerate}
-    \item Generate accurate predictions for time window $y(t+\ell), \cdots, y(t+\ell+h-1)$
-    \item Learn the time lag structure.
+    \item Accurate predictions for time window $y(t+\ell), \cdots, y(t+\ell+h-1)$
+    \item Learning the time lag structure.
 \end{enumerate}
+
+
+The neural network parameters are updated using gradient based minimization of equation \ref{eq:loss}.
 
 
 \begin{equation}\label{eq:loss}
@@ -355,6 +367,12 @@ In order to train time lag based models, one must balance two incentives.
 \end{aligned}
 \end{equation}
 
+The quantity $\widetilde{p}_i, i \in {1, \cdots, h}$ represents some \emph{apriori} knowledge of the propagation time distribution. In the experiments run here, we choose $\widetilde{p}_i = 1/h$.
+
+
+
+
+\vspace{0.5\baselineskip}
 
 \mysection{Experiments}
 
@@ -375,6 +393,10 @@ Generating time series $x(t) \in \mathbb{R}^8$, of size $4000$ (one copy for tra
 \end{enumerate}
 
 \myfig{exp2_predictive_curves}{0.5}
+\mycaption{\textbf{Problem I}: Output vs Propagation time relationship}
+
+\myfig{exp3_predictive_curves}{0.5}
+\mycaption{\textbf{Problem II}: Output vs Propagation time relationship}
 
 \begin{center}
 \begin{tabular}{p{0.25\linewidth}p{0.25\linewidth}p{0.25\linewidth}}
@@ -382,7 +404,7 @@ Generating time series $x(t) \in \mathbb{R}^8$, of size $4000$ (one copy for tra
 \noalign{\smallskip}
 \multicolumn{3}{c}{Predictive Performance: Time Lag} \\
 \hline
-Experiment  &  M.A.E  &  Correlation \\
+Problem  &  M.A.E  &  Correlation \\
 \noalign{\smallskip}
 \hline
 \noalign{\smallskip}
@@ -399,7 +421,7 @@ II & $1.492$ & $0.934$ \\
 \noalign{\smallskip}
 \multicolumn{3}{c}{Predictive Performance: Output} \\
 \hline
-Experiment  &  M.A.E  &  Correlation \\
+Problem  &  M.A.E  &  Correlation \\
 \noalign{\smallskip}
 \hline
 \noalign{\smallskip}
@@ -411,17 +433,10 @@ II & $16.204$ & $0.980$ \\
 \end{center}
 
 
-
-
-
-\myfig{exp3_predictive_curves}{0.5}
-
-
 %\vspace{\baselineskip}
-\mysection{Conclusions}
+\mysection{Future Work}
 \begin{enumerate}
-    \item Our proposed method 
-    \item 
+    \item Application of our proposed method to the problem of solar wind propagation time. 
     \item Manuscript (under review) AISTATS 2019\\
 \end{enumerate}
     %\vspace{.5\baselineskip}
